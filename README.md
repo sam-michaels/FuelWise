@@ -1,49 +1,92 @@
-# FuelWise — Canadian Gas Price Tracker
+# FuelWise — Canadian Gas Price Tracker (v0.2)
 
 A web app that shows nearby gas stations on a map, lets users compare prices, and calculates whether driving farther for cheaper gas is actually worth it once you account for the fuel burned getting there.
 
-Built with Next.js 14 (App Router), Leaflet/OpenStreetMap, and Tailwind. Designed to deploy to Vercel + a managed Postgres in under 15 minutes.
+Built with Next.js 14, OpenStreetMap, Leaflet, and Tailwind. Deploys to Vercel in minutes.
 
 ---
 
-## The single most important thing to read before you build further
+## Architecture: stations and prices are separate
 
-**Real-time gas prices are not free in Canada.** There is no public Canadian API equivalent to Germany's MTS-K or the UK's CMA feed. Every approach has tradeoffs:
+The single most important architectural decision in this app is that **station discovery** and **price data** come from different sources and are kept separate in the code. This is because they're different problems.
 
-| Source                                                                    | Coverage         | Freshness                    | Cost                       | Risk                                    |
-| ------------------------------------------------------------------------- | ---------------- | ---------------------------- | -------------------------- | --------------------------------------- |
-| **Crowdsourced reports** (this app's default)                             | Grows with users | Variable; depends on reports | Free                       | Cold-start problem                      |
-| **GasBuddy Business API**                                                 | National         | Live                         | $$$$ (enterprise contract) | Cost barrier                            |
-| **Provincial regulators** (NB EUB, NL PUB, NS UARB, PEI IRAC, RDÉ Québec) | 5 provinces only | Daily/weekly max             | Free                       | Excludes ON, AB, BC, etc.               |
-| **Web scraping** (GasBuddy, Costco, etc.)                                 | National         | Live                         | Free-ish                   | ToS violation, breaks often, legal risk |
+```
+┌─────────────────┐     ┌─────────────────┐
+│ StationProvider │     │  PriceProvider  │
+│  (the "where")  │     │  (the "what")   │
+└────────┬────────┘     └────────┬────────┘
+         │                       │
+         └───────────┬───────────┘
+                     │
+                     ▼
+            ┌────────────────┐
+            │  API Route     │
+            │  /stations/    │
+            │  nearby        │
+            └────────────────┘
+```
 
-### The architecture decision
+### Station providers (where the stations are)
 
-This app is built around a **`PriceProvider` interface** in `src/lib/priceProviders/`. The default implementation uses seed data + a crowdsourced report endpoint with freshness scoring. To switch to a paid API or a scraper later, you implement one interface and swap it in. **The rest of the app does not change.**
+`src/lib/stationProviders/`
 
-I'd start with:
+| Provider | Coverage | Notes |
+|---|---|---|
+| **`osm`** (default) | All of Canada | Uses OpenStreetMap's Overpass API. Free, no API key, returns every commercially-mapped gas station within radius. |
+| `seed` | London, ON only | Reads from `data/stations.json`. For offline dev. |
 
-1. Crowdsourced reporting (built into this template) for your home city
-2. Add the regulated-province feeds where they exist (free, easy wins)
-3. Only consider the GasBuddy contract once you have meaningful traffic
+OSM coverage of Canadian gas stations is essentially complete in cities and very good in rural areas. If a station near you is missing, [add it to OSM](https://www.openstreetmap.org/edit) — it'll appear in your app within ~24 hours.
+
+### Price providers (what they cost)
+
+`src/lib/priceProviders/`
+
+| Provider | Coverage | Notes |
+|---|---|---|
+| **`seed`** (default) | London, ON area only | Illustrative seed prices. |
+| **`quebec`** | All of Quebec | Régie de l'énergie open feed. Real, live, mandated by law (April 2026). **Requires endpoint discovery — see provider source comments.** |
+| `null` | None | Stations render with no prices. Honest fallback for provinces without a feed. |
+| `crowdsource` | TODO | Build it; wire up Postgres. |
+| `gasbuddy` | TODO | Requires paid contract. |
+
+### Why this matters
+
+The original v0.1 conflated these. Result: only the ~10 stations in the seed JSON appeared, and stations the user actually knew were missing. Splitting these means:
+
+- The map will show **every** OSM-known station near you (typically 20-50 in a Canadian city), even ones with no price data.
+- You can integrate a real price feed for one province (Quebec) without breaking the rest of the country.
+- Provinces without a free feed gracefully degrade to "stations only, no prices."
+
+---
+
+## Canadian gas price data — a survey
+
+There is no public, free, Canada-wide real-time price API. As of April 2026, the landscape:
+
+- **Quebec** is the lone bright spot. As of April 1, 2026, retailers must report prices to `regieessencequebec.ca` within 5 minutes of any change. ~2,700 stations covered. Data is downloadable. *This is the first such system in Canada.*
+- **New Brunswick / Nova Scotia / PEI / Newfoundland & Labrador**: regulated weekly maximum prices published by provincial Energy and Utilities Boards. Slow but free and authoritative.
+- **Ontario / Alberta / BC / MB / SK**: no regulated feed. Prices are fully market-driven and not centrally collected. Options are crowdsource (build like GasBuddy did), pay GasBuddy, scrape big-box websites, or surface Statistics Canada weekly city averages as an overlay.
+
+If your home province isn't Quebec, **you should expect to start with crowdsourced data** and the explicit "we don't have prices" experience for any station that hasn't been reported yet.
 
 ---
 
 ## What's built
 
-- 🗺️ Leaflet map with stations clustered around the user's geolocation
-- 📋 List view sorted by distance or price
-- 🧮 "Worth it?" calculator: compares two stations, factors in vehicle fuel economy and round-trip distance, tells you the actual savings (or loss) in dollars
-- 📍 Browser geolocation with manual override
-- 🌗 Pluggable price-data provider (seed JSON by default; swap in your real source)
-- 📱 Responsive — works as a PWA-able web app on phones
+- 🗺️ Leaflet map showing **all OSM-mapped stations** within radius
+- 📋 List view sorted by price or distance
+- 🧮 "Worth it?" comparator with vehicle fuel economy presets and time-cost toggle
+- 📍 Browser geolocation with manual fallback
+- 🔌 Pluggable station and price providers
+- 🌐 Stations cached in memory for 6 hours per (lat, lng) tile
+- 📱 Responsive UI
 
-## What's stubbed and needs you to finish it
+## What still needs to be built
 
-- **Price reporting submission** — UI is wired; you need to add a database (Neon/Supabase recommended) and persist reports
-- **Authentication** — none, for simplicity. Add Auth.js when you want trust levels for reporters
-- **Price decay/freshness** — algorithm is in `src/lib/freshness.js`, called everywhere prices are read; tune the half-life constant for your needs
-- **Scraping the regulated provinces** — `src/lib/priceProviders/` has the interface; implementations are TODO
+- **Quebec feed endpoint discovery.** Open `regieessencequebec.ca` in Chrome DevTools (Network tab) and grab the URL the map uses to load stations. Put it in `QUEBEC_REGIE_FEED_URL`. The provider has defensive normalizers for several likely response shapes.
+- **Crowdsourced reports.** UI is wired but reports aren't persisted — add Postgres (Neon free tier recommended) and a `submit-price` endpoint.
+- **Reporter trust scoring.** Combine time decay (already in `lib/freshness.js`), corroboration count, and median deviation.
+- **Maritime province scrapers.** EUB sites publish weekly max prices in predictable HTML — straightforward to scrape and add as price providers.
 
 ---
 
@@ -54,7 +97,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Default config: OSM stations + seed prices. You'll see every gas station near your location, with seed prices on the few that match the seed file by brand/proximity.
 
 ## Deploy to Vercel
 
@@ -63,61 +106,54 @@ npm install -g vercel
 vercel
 ```
 
-Follow the prompts. Free tier is plenty until you grow. When you add a database:
+Set environment variables in Vercel project settings as needed (see `.env.local.example`).
 
-- **Neon** (recommended): https://neon.tech — generous free tier, native Postgres
-- **Supabase**: also great, includes auth if you want it later
-- Set `DATABASE_URL` in Vercel project settings
+---
 
 ## Project layout
 
 ```
 src/
   app/
-    layout.jsx           # Root layout, fonts, theme
-    page.jsx             # Main app shell
-    globals.css          # Tailwind + custom CSS
-    api/
-      stations/
-        nearby/route.js  # GET nearby stations + prices
-  components/
-    MapView.jsx          # Leaflet map (dynamic import — no SSR)
-    StationList.jsx      # Sorted list of stations
-    StationCard.jsx      # Individual station row
-    WorthItModal.jsx     # The comparison calculator
-    LocationButton.jsx   # Geolocate / manual entry
-    Header.jsx
+    layout.jsx, page.jsx, globals.css
+    api/stations/nearby/route.js     # combines stations + prices
+
+  components/                          # UI
+
   lib/
-    geo.js               # Haversine distance
-    worthIt.js           # The savings calculation
-    freshness.js         # Price report decay scoring
-    priceProviders/
-      index.js           # Provider interface + factory
-      seedProvider.js    # Default: reads from seed JSON
+    geo.js                            # Haversine, road-factor
+    worthIt.js                        # The comparison math
+    freshness.js                      # Price report decay scoring
+
+    stationProviders/                 # WHERE stations are
+      index.js
+      osmStationProvider.js           # OSM Overpass API (default)
+      seedStationProvider.js          # local JSON (dev)
+
+    priceProviders/                   # WHAT they cost
+      index.js
+      seedPriceProvider.js            # local JSON
+      quebecPriceProvider.js          # Régie de l'énergie (stub)
+      nullPriceProvider.js            # no prices
+
   data/
-    stations.json        # Seed data (London, ON area)
+    stations.json                     # Seed data
 ```
-
-## The "worth it" calculation
-
-Given two stations, the question is: _do I save more on the cheaper gas than I burn driving extra distance to get it?_
-
-```
-extraDistanceKm   = 2 * (distanceFar - distanceClose)        # round trip
-extraFuelLitres   = extraDistanceKm * (fuelEconomy / 100)
-extraFuelCost     = extraFuelLitres * priceFar               # gas you'll burn
-savingsOnFillup   = fillupLitres * (priceClose - priceFar)
-netSavings        = savingsOnFillup - extraFuelCost
-```
-
-If `netSavings > 0`, the farther station wins. The UI also shows break-even fillup size.
-
-There's a more sophisticated version that accounts for the price of fuel you've already paid for in your tank, time value, and traffic — see comments in `src/lib/worthIt.js`. The simple version above is what the UI uses by default.
 
 ---
 
-## Legal / ethical notes
+## v0.3 changes
 
-- **Don't scrape GasBuddy.** Their ToS is clear and they do enforce it.
-- **Crowdsourced data can be wrong.** Build in confidence scoring (distance from last report, time decay, number of corroborating reports) before you publish prices to a wide audience.
-- **Privacy.** Geolocation should be opt-in and never persisted server-side without consent. This template requests permission and keeps location client-side.
+- **Geolocation now uses high-accuracy mode** (`enableHighAccuracy: true`). On desktop you'll typically get Wi-Fi triangulation accuracy (±50–200 m) instead of IP-based location (±2–10 km). The accuracy is shown in the UI as `±Xm · GPS / Wi-Fi / approx / IP-based`.
+- **Address search** with autocomplete (Canada-only by default). Powered by Nominatim (free, OSM-based) via two new API routes: `/api/geocode/search` and `/api/geocode/reverse`. Results are cached server-side and rate-limited to 1 req/sec per Nominatim's policy.
+- **Draggable user pin.** The red user marker on the map can now be dragged anywhere — drop it to recenter the search. The accuracy circle disappears on drag (drag = manual placement, not GPS).
+- **Reverse-geocoded addresses.** When OSM doesn't have `addr:*` tags for a station, the OSM provider now backfills via Nominatim reverse geocoding for the closest 5 stations per request. Tunable via `MAX_REVERSE_GEOCODE_PER_REQUEST` in `osmStationProvider.js`.
+- **Address line is its own row in station cards** with a pin icon and a "Directions ↗" link that opens Google Maps.
+
+## Nominatim usage policy reminder
+
+Per [the OSMF policy](https://operations.osmfoundation.org/policies/nominatim/):
+- 1 req/sec maximum (enforced in `lib/geocoding.js`)
+- Descriptive User-Agent (set; update before going to production)
+- No bulk imports
+- For production with real traffic, **run your own Nominatim instance** or use a paid alternative — the public endpoint is for development and small-scale use.

@@ -1,0 +1,266 @@
+{
+  "_note": "Seed data only. Coordinates are real London, ON locations; prices are illustrative. Replace with a real PriceProvider before going live.",
+  "_lastUpdated": "2026-04-27T00:00:00Z",
+  "stations": [
+    {
+      "id": "costco-wonderland",
+      "name": "Costco Gas",
+      "brand": "Costco",
+      "address": "750 Wonderland Rd N, London, ON",
+      "lat": 42.9849,
+      "lng": -81.2783,
+      "prices": {
+        "regular": {
+          "cpl": 138.9,
+          "reportedAt": "2026-04-27T08:30:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 159.9,
+          "reportedAt": "2026-04-27T08:30:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 144.9,
+          "reportedAt": "2026-04-27T08:30:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["membership_required", "pay_at_pump"]
+    },
+    {
+      "id": "petrocan-richmond",
+      "name": "Petro-Canada",
+      "brand": "Petro-Canada",
+      "address": "1100 Richmond St, London, ON",
+      "lat": 43.0084,
+      "lng": -81.2769,
+      "prices": {
+        "regular": {
+          "cpl": 146.9,
+          "reportedAt": "2026-04-27T07:15:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 168.9,
+          "reportedAt": "2026-04-27T07:15:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 152.9,
+          "reportedAt": "2026-04-27T07:15:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["car_wash", "convenience_store", "pay_at_pump"]
+    },
+    {
+      "id": "shell-oxford",
+      "name": "Shell",
+      "brand": "Shell",
+      "address": "850 Oxford St E, London, ON",
+      "lat": 42.9941,
+      "lng": -81.2237,
+      "prices": {
+        "regular": {
+          "cpl": 145.9,
+          "reportedAt": "2026-04-27T09:02:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 167.9,
+          "reportedAt": "2026-04-27T09:02:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 151.9,
+          "reportedAt": "2026-04-27T09:02:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump", "air_pump"]
+    },
+    {
+      "id": "esso-wellington",
+      "name": "Esso",
+      "brand": "Esso",
+      "address": "1500 Wellington Rd S, London, ON",
+      "lat": 42.9296,
+      "lng": -81.237,
+      "prices": {
+        "regular": {
+          "cpl": 144.9,
+          "reportedAt": "2026-04-27T06:45:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 166.9,
+          "reportedAt": "2026-04-27T06:45:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 150.9,
+          "reportedAt": "2026-04-27T06:45:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump", "tim_hortons"]
+    },
+    {
+      "id": "pioneer-hamilton",
+      "name": "Pioneer",
+      "brand": "Pioneer",
+      "address": "555 Hamilton Rd, London, ON",
+      "lat": 42.9794,
+      "lng": -81.2148,
+      "prices": {
+        "regular": {
+          "cpl": 142.9,
+          "reportedAt": "2026-04-27T08:50:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 164.9,
+          "reportedAt": "2026-04-27T08:50:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 148.9,
+          "reportedAt": "2026-04-27T08:50:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump"]
+    },
+    {
+      "id": "ultramar-dundas",
+      "name": "Ultramar",
+      "brand": "Ultramar",
+      "address": "1234 Dundas St, London, ON",
+      "lat": 42.9938,
+      "lng": -81.2027,
+      "prices": {
+        "regular": {
+          "cpl": 143.9,
+          "reportedAt": "2026-04-27T07:30:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 165.9,
+          "reportedAt": "2026-04-27T07:30:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 149.9,
+          "reportedAt": "2026-04-27T07:30:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store"]
+    },
+    {
+      "id": "circle-k-fanshawe",
+      "name": "Circle K",
+      "brand": "Circle K",
+      "address": "1900 Fanshawe Park Rd W, London, ON",
+      "lat": 43.0188,
+      "lng": -81.2932,
+      "prices": {
+        "regular": {
+          "cpl": 145.4,
+          "reportedAt": "2026-04-27T08:10:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 167.4,
+          "reportedAt": "2026-04-27T08:10:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 151.4,
+          "reportedAt": "2026-04-27T08:10:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump", "atm"]
+    },
+    {
+      "id": "mobil-southdale",
+      "name": "Mobil",
+      "brand": "Mobil",
+      "address": "300 Southdale Rd E, London, ON",
+      "lat": 42.9489,
+      "lng": -81.2357,
+      "prices": {
+        "regular": {
+          "cpl": 144.4,
+          "reportedAt": "2026-04-27T08:25:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 166.4,
+          "reportedAt": "2026-04-27T08:25:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 150.4,
+          "reportedAt": "2026-04-27T08:25:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump"]
+    },
+    {
+      "id": "petrocan-highbury",
+      "name": "Petro-Canada",
+      "brand": "Petro-Canada",
+      "address": "950 Highbury Ave N, London, ON",
+      "lat": 43.0034,
+      "lng": -81.1988,
+      "prices": {
+        "regular": {
+          "cpl": 146.9,
+          "reportedAt": "2026-04-27T07:55:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 168.9,
+          "reportedAt": "2026-04-27T07:55:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 152.9,
+          "reportedAt": "2026-04-27T07:55:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["car_wash", "convenience_store"]
+    },
+    {
+      "id": "shell-commissioners",
+      "name": "Shell",
+      "brand": "Shell",
+      "address": "200 Commissioners Rd W, London, ON",
+      "lat": 42.9645,
+      "lng": -81.268,
+      "prices": {
+        "regular": {
+          "cpl": 145.9,
+          "reportedAt": "2026-04-27T09:10:00Z",
+          "source": "seed"
+        },
+        "premium": {
+          "cpl": 167.9,
+          "reportedAt": "2026-04-27T09:10:00Z",
+          "source": "seed"
+        },
+        "diesel": {
+          "cpl": 151.9,
+          "reportedAt": "2026-04-27T09:10:00Z",
+          "source": "seed"
+        }
+      },
+      "amenities": ["convenience_store", "pay_at_pump"]
+    }
+  ]
+}
